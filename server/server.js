@@ -1,5 +1,6 @@
 import express from 'express';
 import db_connection from './config/db_connection.js';
+import './models/association.js'; // Import associations to ensure they are set up
 
 const app = express();
 
