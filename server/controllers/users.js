@@ -15,7 +15,7 @@ export const getAllUsers = async (req, res) => {
 }
 
 // Create a new user
-export const creatUser = async (req, res) => {
+export const createUser = async (req, res) => {
     try {
         const {
             body: {firstName, lastName, email, phone, password},
@@ -26,7 +26,7 @@ export const creatUser = async (req, res) => {
         if (existingUser) {
             return res.status(400).json({ message: "User already exists" });
         } 
-        const user = await user.creat(req.body);
+        const user = await user.create(req.body);
         res.status(201).json(user);
 
     }catch (error) {
@@ -73,7 +73,7 @@ export const updateUser = async (req, res) => {
 }
 
 // delete a user
-export const deleteUser - async (req, res) => {
+export const deleteUser = async (req, res) => {
     try {
         const {
             params: { id }
@@ -85,5 +85,46 @@ export const deleteUser - async (req, res) => {
     }catch (error) {
         console.error("Error deleting User:", error);
         res.status(500).json({ error: error.message});
+    }
+}
+
+// Get your profile
+export const getOwnProfile = async (req, res) => {
+    try {
+        const user = await User.findByPk(req.user.id);
+        if (!user) return res.status(404).json({ message: "User not found" });
+        res.json(user);
+    } catch (error) {
+        console.error("Error fetching own profile:", error);
+        res.status(500).json({ error: error.message });
+    }
+};
+
+// Update your profile
+export const updateOwnProfile = async (req, res) => {
+    try {
+        const user = await User.findByPk(req.user.id);
+        if (!user) return res.status(404).json({ message: "User not found" });
+        const { firstName, lastName, email, phone, password } = req.body;
+        if (!firstName || !lastName || !email || !password || !phone)
+            return res.status(400).json({ message: "All fields are required" });
+        await user.update(req.body);
+        res.status(201).json(user);
+    } catch (error) {
+        console.error("Error updating own profile:", error);
+        res.status(500).json({ error: error.message });
+    }
+};
+
+// Delete your profile
+export const deleteOwnProfile = async (req, res) => {
+    try {
+        const user = await User.findByPk(req.user.id);
+        if (!user) return res.status(404).json({ message: "User not found" });
+        await user.destroy();
+        res.status(201).json({ message: "Profile deleted successfully" });
+    } catch (error) {
+        console.error("Error deleting own profile:", error);
+        res.status(500).json({ error: error.message });
     }
 }
